@@ -4,21 +4,17 @@ import { imageHosts } from './image-hosts.config.mjs';
 const nextConfig = {
   productionBrowserSourceMaps: true,
   distDir: process.env.DIST_DIR || '.next',
-  output: 'export',
-  trailingSlash: true,
   images: {
     remotePatterns: imageHosts,
     minimumCacheTTL: 60,
-    unoptimized: true, // Required for static export
   },
   async redirects() {
     return [
-      // Redirects disabled for static export
-      // {
-      //   source: '/',
-      //   destination: '/dashboard',
-      //   permanent: false,
-      // },
+      {
+        source: '/',
+        destination: '/dashboard',
+        permanent: false,
+      },
     ];
   },
 

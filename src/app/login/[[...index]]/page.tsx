@@ -1,6 +1,6 @@
-import { SignUp } from '@clerk/nextjs';
+import { SignIn } from '@clerk/nextjs';
 
-export default function RegisterPage() {
+export default function LoginPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       {/* Background grid */}
@@ -14,7 +14,7 @@ export default function RegisterPage() {
       />
 
       <div className="w-full max-w-md relative z-10">
-        <SignUp
+        <SignIn
           appearance={{
             baseTheme: undefined,
             variables: {

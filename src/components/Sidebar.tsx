@@ -17,7 +17,7 @@ import {
   FlaskConical,
 } from 'lucide-react';
 import AppLogo from '@/components/ui/AppLogo';
-import { useRouter } from 'next/navigation';
+import { UserButton, useUser, useAuth } from '@clerk/nextjs';
 
 const NAV_ITEMS = [
   {
@@ -65,7 +65,19 @@ const BOTTOM_ITEMS = [
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
+  const { user } = useUser();
+  const { has, isLoaded, signOut } = useAuth();
+
+  const isAdmin = has?.({ role: 'admin' });
+
+  const handleSignOut = async () => {
+    if (signOut) {
+      await signOut();
+    }
+    window.location.href = '/login';
+  };
+
+  const filteredBottomItems = BOTTOM_ITEMS.filter((item) => item.key !== 'nav-settings' || isAdmin);
 
   return (
     <aside
@@ -159,7 +171,7 @@ export default function Sidebar() {
             System
           </p>
         )}
-        {BOTTOM_ITEMS?.map((item) => {
+        {filteredBottomItems?.map((item) => {
           const Icon = item?.icon;
           return (
             <Link
@@ -188,24 +200,37 @@ export default function Sidebar() {
         className={`border-t border-border p-3 shrink-0 ${collapsed ? 'flex justify-center' : ''}`}
       >
         {collapsed ? (
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-            <span className="text-xs font-600 text-primary">MR</span>
-          </div>
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: 'w-8 h-8',
+              },
+            }}
+          />
         ) : (
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-              <span className="text-xs font-600 text-primary">MR</span>
-            </div>
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: 'w-8 h-8',
+                },
+              }}
+            />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-500 text-white truncate">Marcus Reid</p>
-              <p className="text-[11px] text-muted-foreground truncate">Ops Analyst</p>
+              <p className="text-sm font-500 text-white truncate">
+                {user?.firstName} {user?.lastName}
+              </p>
+              <p className="text-[11px] text-muted-foreground truncate">
+                {String(user?.publicMetadata?.role || 'User')}
+              </p>
             </div>
             <button
-              className="text-muted-foreground hover:text-danger transition-colors"
-              title="Sign out"
-              onClick={() => router?.push('/login')}
+              type="button"
+              onClick={handleSignOut}
+              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-[11px] font-500 text-muted-foreground hover:bg-surface-elevated hover:text-white transition-colors"
             >
               <LogOut size={14} />
+              Logout
             </button>
           </div>
         )}

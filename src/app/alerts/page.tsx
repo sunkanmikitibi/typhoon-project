@@ -14,13 +14,11 @@ export default function AlertsPage() {
   const [filter, setFilter] = useState<'all' | AlertState>('all');
 
   useEffect(() => {
-    // Load alerts directly from mock data
+    // Load alerts directly from Supabase
     const loadAlerts = async () => {
       try {
         setIsLoading(true);
-        // Simulate API delay for realistic loading state
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const data = getAlerts();
+        const data = await getAlerts();
         setAlerts(data);
       } catch (_error) {
         toast.error('Could not load alerts');
@@ -44,7 +42,7 @@ export default function AlertsPage() {
 
   const resolveAlert = async (alertId: string) => {
     try {
-      const resolvedAlert = resolveAlertById(alertId);
+      const resolvedAlert = await resolveAlertById(alertId);
       if (resolvedAlert) {
         setAlerts((previous) =>
           previous.map((alert) => (alert.id === alertId ? resolvedAlert : alert))

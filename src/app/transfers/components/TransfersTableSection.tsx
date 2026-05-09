@@ -20,7 +20,7 @@ import RiskScore from '@/components/ui/RiskScore';
 import EmptyState from '@/components/ui/EmptyState';
 import { ArrowLeftRight } from 'lucide-react';
 import ApproveConfirmModal from './ApproveConfirmModal';
-import { mockTransfers } from '@/lib/transfers/mockTransfers';
+import { getTransfers } from '@/lib/transfers/store';
 import type { Transfer } from '@/lib/transfers/types';
 
 type SortDir = 'asc' | 'desc' | null;
@@ -46,13 +46,12 @@ export default function TransfersTableSection({ newTransfer }: Props) {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load transfers directly from mock data
+    // Load transfers directly from Supabase
     const loadTransfers = async () => {
       try {
         setIsLoading(true);
-        // Simulate API delay for realistic loading state
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setTransfers(mockTransfers);
+        const data = await getTransfers();
+        setTransfers(data);
       } catch (_error) {
         toast.error('Could not load transfers');
       } finally {

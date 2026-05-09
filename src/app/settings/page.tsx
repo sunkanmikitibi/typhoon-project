@@ -19,13 +19,11 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Load settings directly from store
+    // Load settings directly from Supabase
     const loadSettings = async () => {
       try {
         setIsLoading(true);
-        // Simulate API delay for realistic loading state
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const data = getSettings();
+        const data = await getSettings();
         setSettings(data);
       } catch (_error) {
         toast.error('Could not load settings');
@@ -39,9 +37,7 @@ export default function SettingsPage() {
 
   const saveSettings = async () => {
     try {
-      // Simulate API delay for realistic user experience
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      updateSettings(settings);
+      await updateSettings(settings);
       toast.success('Settings saved', {
         description: 'Operational controls have been updated.',
       });

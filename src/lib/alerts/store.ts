@@ -1,54 +1,79 @@
+import { supabase } from '@/lib/supabase/client';
 import type { OpsAlert } from './types';
 
-let alertsStore: OpsAlert[] = [
-  {
-    id: 'alt-9012',
-    title: 'Spike in high-risk transfer attempts',
-    description: 'Risk engine flagged 13 transfers above 85 risk score in the last 10 minutes.',
-    source: 'Fraud Monitor',
-    createdAt: '04/29 14:58',
-    severity: 'critical',
-    state: 'open',
-  },
-  {
-    id: 'alt-9011',
-    title: 'ACH settlement latency increased',
-    description: 'Average processing latency exceeded 2.5x baseline for ACH transfers.',
-    source: 'Rail Health',
-    createdAt: '04/29 14:42',
-    severity: 'high',
-    state: 'open',
-  },
-  {
-    id: 'alt-9010',
-    title: 'Manual review queue threshold reached',
-    description: 'Pending review queue has reached 40 items and may delay approvals.',
-    source: 'Operations',
-    createdAt: '04/29 14:17',
-    severity: 'medium',
-    state: 'open',
-  },
-  {
-    id: 'alt-9009',
-    title: 'Notification webhook retry recovered',
-    description: 'Downstream notifications recovered after transient endpoint timeout.',
-    source: 'Platform',
-    createdAt: '04/29 13:53',
-    severity: 'low',
-    state: 'resolved',
-  },
-];
+export async function getAlerts(): Promise<OpsAlert[]> {
+  const { data, error } = await supabase
+    .from('alerts')
+    .select('*')
+    .order('created_at', { ascending: false });
 
-export function getAlerts(): OpsAlert[] {
-  return alertsStore;
+  if (error) {
+    console.error('Error fetching alerts:', error);
+    throw new Error('Failed to fetch alerts');
+  }
+
+  return data.map(alert => ({
+    id: alert.id,
+    title: alert.title,
+    description: alert.description,
+    source: alert.source,
+    createdAt: alert.created_at,
+    severity: alert.severity,
+    state: alert.state,
+  }));
 }
 
-export function resolveAlertById(alertId: string): OpsAlert | null {
-  let updatedAlert: OpsAlert | null = null;
-  alertsStore = alertsStore.map((alert) => {
-    if (alert.id !== alertId) return alert;
-    updatedAlert = { ...alert, state: 'resolved' };
-    return updatedAlert;
-  });
-  return updatedAlert;
+export async function resolveAlertById(alertId: string): Promise<OpsAlert | null> {
+  const { data, error } = await supabase
+    .from('alerts')
+    .update({ state: 'resolved' })
+    .eq('id', alertId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error resolving alert:', error);
+    throw new Error('Failed to resolve alert');
+  }
+
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    source: data.source,
+    createdAt: data.created_at,
+    severity: data.severity,
+    state: data.state,
+  };
+}
+
+export async function createAlert(alert: Omit<OpsAlert, 'id' | 'createdAt'>): Promise<OpsAlert> {
+  const { data, error } = await supabase
+    .from('alerts')
+    .insert({
+      title: alert.title,
+      description: alert.description,
+      source: alert.source,
+      severity: alert.severity,
+      state: alert.state,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating alert:', error);
+    throw new Error('Failed to create alert');
+  }
+
+  return {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    source: data.source,
+    createdAt: data.created_at,
+    severity: data.severity,
+    state: data.state,
+  };
 }

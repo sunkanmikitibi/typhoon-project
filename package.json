@@ -49,12 +49,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.9.9",
     "@dhiwise/component-tagger": "^1.0.15",
     "@heroicons/react": "^2.2.0",
+    "@supabase/supabase-js": "^2.105.4",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "lucide-react": "^1.7.0",
-    "next": "15.1.11",
+    "next": "^16.2.6",
     "react": "19.0.3",
     "react-dom": "19.0.3",
     "react-hook-form": "^7.74.0",
